@@ -1,0 +1,20 @@
+
+
+# requirements.txt
+
+
+tensorflow
+keras
+opencv-python
+numpy
+pandas
+matplotlib
+seaborn
+scikit-learn
+imbalanced-learn
+flask
+jupyter
+notebook
+scipy
+pillow
+h5py

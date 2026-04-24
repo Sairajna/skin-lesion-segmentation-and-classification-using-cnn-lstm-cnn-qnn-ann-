@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skin Lesion Prediction</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f4f9; margin: 0; }
+        .container { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; }
+        h1 { color: #333; }
+        #upload-form { margin-top: 1.5rem; }
+        #file-input { display: none; }
+        .file-label { background-color: #f0f0f0; border: 1px solid #ccc; padding: 10px 15px; border-radius: 4px; cursor: pointer; display: inline-block; }
+        #predict-btn { background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; font-size: 1rem; cursor: pointer; margin-top: 1rem; }
+        #predict-btn:hover { background-color: #0056b3; }
+        #prediction-result { margin-top: 1.5rem; padding: 1rem; border-radius: 4px; font-size: 1.2rem; background-color: #e9f7ef; color: #155724; border: 1px solid #c3e6cb; }
+        #file-name { margin-top: 0.5rem; color: #555; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Image for Prediction</h1>
+        <form id="upload-form">
+            <label for="file-input" class="file-label">Choose File</label>
+            <input type="file" id="file-input" name="file" accept="image/*" required>
+            <div id="file-name">No file chosen</div>
+            <br>
+            <button type="submit" id="predict-btn">Predict</button>
+        </form>
+        <div id="prediction-result" style="display:none;"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('upload-form');
+        const fileInput = document.getElementById('file-input');
+        const fileNameDisplay = document.getElementById('file-name');
+        const predictionResult = document.getElementById('prediction-result');
+
+        fileInput.addEventListener('change', () => {
+            fileNameDisplay.textContent = fileInput.files.length > 0 ? fileInput.files[0].name : 'No file chosen';
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            predictionResult.style.display = 'none';
+            predictionResult.textContent = 'Analyzing...';
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                predictionResult.style.display = 'block';
+
+                if (response.ok) {
+                    // **THIS IS THE PART THAT FAILED BEFORE**
+                    // Now `data.prediction` will contain the name, not be 'undefined'
+                    predictionResult.innerHTML = `Predicted: <strong>${data.prediction}</strong><br>Confidence: ${data.confidence}%`;
+                } else {
+                    predictionResult.innerHTML = `Error: ${data.error || 'Prediction failed.'}`;
+                }
+            } catch (error) {
+                predictionResult.style.display = 'block';
+                predictionResult.textContent = 'An error occurred. Check the server console.';
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
